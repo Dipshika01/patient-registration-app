@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import React from 'react';
 import PatientRegistration from './components/PatientRegistration';
 import SQLQuery from './components/SQLQuery';
 import PatientList from './components/PatientList';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import databaseService from '../services/database';
 import './PatientRegistration.css';
