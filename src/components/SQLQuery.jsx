@@ -3,17 +3,15 @@ import databaseService from '../services/database';
 import './SQLQuery.css';
 
 const SQLQuery = () => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState('SELECT * FROM patients;');
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Initialize the database
-    const setupDatabase = async () => {
+    const initializeDatabase = async () => {
       try {
         await databaseService.initialize();
-        // Initial load of patients
         const patients = await databaseService.getPatients();
         setResults(patients);
       } catch (err) {
@@ -22,11 +20,9 @@ const SQLQuery = () => {
       }
     };
 
-    setupDatabase();
+    initializeDatabase();
 
-    // Listen for patient registration events
-    const handlePatientRegistered = async () => {
-      console.log('Patient registered event received, refreshing list...');
+    const refreshOnPatientRegistered = async () => {
       try {
         const patients = await databaseService.getPatients();
         setResults(patients);
@@ -36,65 +32,76 @@ const SQLQuery = () => {
       }
     };
 
-    window.addEventListener('patientRegistered', handlePatientRegistered);
-
-    return () => {
-      window.removeEventListener('patientRegistered', handlePatientRegistered);
-    };
+    window.addEventListener('patientRegistered', refreshOnPatientRegistered);
+    return () => window.removeEventListener('patientRegistered', refreshOnPatientRegistered);
   }, []);
 
   const handleQuerySubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
-    
+    setError('');
+    setResults([]);
+  
     try {
-      // Basic SQL injection prevention
-      if (query.toLowerCase().includes('drop') || 
-          query.toLowerCase().includes('delete') || 
-          query.toLowerCase().includes('update') ||
-          query.toLowerCase().includes('alter')) {
-        throw new Error('Invalid query');
+      const forbidden = ['drop', 'delete', 'update', 'alter'];
+      const lowerQuery = query.toLowerCase();
+  
+      if (forbidden.some(keyword => lowerQuery.includes(keyword))) {
+        throw new Error('Restricted operation detected. Please use only safe SELECT queries.');
       }
-
+  
       const result = await databaseService.executeQuery(query);
-      setResults(result);
+      if (!Array.isArray(result) || result.length === 0) {
+        setError('Query executed successfully but returned no results.');
+      } else {
+        setResults(result);
+        setQuery(''); 
+      }
     } catch (err) {
       console.error('Error executing query:', err);
       setError('Error executing query: ' + err.message);
-      setResults([]);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="sql-query-container">
       <h2>SQL Query Interface</h2>
+
       <div className="query-info">
-        <p>Available tables: patients</p>
-        <p>Example queries:</p>
+        <p><strong>Available table:</strong> <code>patients</code></p>
+        <p><strong>Example queries:</strong></p>
         <ul>
-          <li>SELECT * FROM patients</li>
-          <li>SELECT * FROM patients WHERE gender = 'Male'</li>
-          <li>SELECT first_name, last_name FROM patients</li>
+          <li><code>SELECT * FROM patients;</code></li>
+          <li><code>SELECT * FROM patients WHERE gender = 'Male';</code></li>
+          <li><code>SELECT first_name, last_name FROM patients;</code></li>
         </ul>
       </div>
-      <form onSubmit={handleQuerySubmit}>
-        <textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Enter your SQL query here"
-          rows={4}
-        />
+
+      <form onSubmit={handleQuerySubmit} className="query-form">
+            <textarea
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Write your SQL SELECT query here..."
+        rows={4}
+        data-gramm="false"
+        data-gramm_editor="false"
+        data-enable-grammarly="false"
+        spellCheck={false}
+      />
+
+
         <button type="submit" disabled={loading}>
           {loading ? 'Executing...' : 'Execute Query'}
         </button>
       </form>
+
       {error && <div className="error-message">{error}</div>}
+
       {results.length > 0 && (
         <div className="results-container">
-          <h3>Results:</h3>
+          <h3>Query Results</h3>
           <table>
             <thead>
               <tr>
@@ -104,11 +111,16 @@ const SQLQuery = () => {
               </tr>
             </thead>
             <tbody>
-              {results.map((row, index) => (
-                <tr key={index}>
+              {results.map((row, idx) => (
+                <tr key={idx}>
                   {Object.values(row).map((value, i) => (
-                    <td key={i}>{value}</td>
-                  ))}
+  <td key={i}>
+    {value instanceof Date
+      ? value.toLocaleDateString()
+      : String(value)}
+  </td>
+))}
+
                 </tr>
               ))}
             </tbody>
@@ -119,4 +131,4 @@ const SQLQuery = () => {
   );
 };
 
-export default SQLQuery; 
+export default SQLQuery;

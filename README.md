@@ -3,14 +3,23 @@
 A frontend-only patient registration application built with React and PGlite for local data storage.
 
 ## Features
-
 - Patient registration form with validation
 - View list of registered patients
 - Local data storage using PGlite
 - Responsive design with CSS
+- Query Patient Records using SQL (safe `SELECT` queries only).
+- Persistent Data across refreshes using IndexedDB via PGlite.
+- Multi-Tab Syncing using `BroadcastChannel`.
+- Search Bar for full-text search across patient records.
+- Edit/Delete Patient Records directly from the list.
+- Email Uniqueness Check before registration.
+
+##  Tech Stack
+- React + Vite
+- PGlite (SQLite for the browser)
+- Vanilla CSS (fully customizable)
 
 ## Prerequisites
-
 - Node.js (v14 or higher)
 - npm (v6 or higher)
 
@@ -26,7 +35,6 @@ npm install
 npm run dev
 ```
 
-3. Open your browser and navigate to `http://localhost:5173`
 
 ## PGlite Setup
 
@@ -51,11 +59,16 @@ PGlite is a lightweight PostgreSQL-compatible database that runs entirely in the
   - `Navbar.jsx`: Navigation component
 - `src/App.jsx`: Main application component with routing
 - `src/index.css`: CSS styles
+- `EditPatientModal.jsx`: Modal popup to edit existing patient data
+  - `SQLQuery.jsx`: SQL interface to query patient records directly
+  - `Navbar.jsx`: Top navigation bar with theme toggle and navigation
+- `src/App.jsx`: Main application component with navigation and page switching logic
+- `src/index.css`: Global CSS styling
 
 ## Future Improvements
-
 - Add patient search functionality
-- Implement patient record editing
 - Add data export capabilities
 - Implement data backup functionality
 - Add user authentication
+- Role-based authentication.
+- 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import databaseService from '../services/database';
+import EditPatientModal from './EditPatientModal';
 import './PatientList.css';
 
 const PatientList = () => {
@@ -8,29 +9,25 @@ const PatientList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingPatient, setEditingPatient] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const itemsPerPage = 10;
 
   const fetchPatients = async () => {
     try {
       setLoading(true);
-      console.log('Fetching patients...');
       const allPatients = await databaseService.getPatients();
-      console.log('Fetched patients:', allPatients);
 
       if (Array.isArray(allPatients)) {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        const paginatedPatients = allPatients.slice(startIndex, endIndex);
-        
-        console.log('Setting patients state:', paginatedPatients);
-        setPatients(paginatedPatients);
+        setPatients(allPatients.slice(startIndex, endIndex));
         setTotalPages(Math.ceil(allPatients.length / itemsPerPage));
       } else {
-        console.error('Invalid patients data:', allPatients);
         setError('Invalid data received from database');
       }
     } catch (err) {
-      console.error('Error fetching patients:', err);
       setError('Error fetching patients: ' + err.message);
     } finally {
       setLoading(false);
@@ -39,39 +36,23 @@ const PatientList = () => {
 
   useEffect(() => {
     let mounted = true;
-
     const setupDatabase = async () => {
       try {
-        console.log('Setting up database...');
         await databaseService.initialize();
-        if (mounted) {
-          await fetchPatients();
-        }
+        if (mounted) await fetchPatients();
       } catch (err) {
-        console.error('Error initializing database:', err);
-        if (mounted) {
-          setError('Error initializing database: ' + err.message);
-        }
+        if (mounted) setError('Error initializing database: ' + err.message);
       }
     };
 
     setupDatabase();
+
     const channel = new BroadcastChannel('patient_updates');
-
     channel.onmessage = (event) => {
-      if (event.data === 'patient_registered') {
-        console.log('📣 Patient update received from another tab!');
-        fetchPatients(); // re-fetch patient list
-      }
-    };
-    
-    const handlePatientRegistered = () => {
-      console.log('Patient registered event received, refreshing list...');
-      if (mounted) {
-        fetchPatients();
-      }
+      if (event.data === 'patient_registered') fetchPatients();
     };
 
+    const handlePatientRegistered = () => fetchPatients();
     window.addEventListener('patientRegistered', handlePatientRegistered);
 
     return () => {
@@ -81,14 +62,39 @@ const PatientList = () => {
     };
   }, [currentPage]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handlePageChange = (page) => setCurrentPage(page);
+
+  const handleEdit = (patient) => {
+    setEditingPatient(patient);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (updatedPatient) => {
+    try {
+      console.log("Saving patient:", updatedPatient);
+      await databaseService.updatePatient(updatedPatient); 
+      fetchPatients(); 
+      setIsModalOpen(false); 
+    } catch (err) {
+      console.error("Error updating patient:", err);
+      setError("Error updating patient: " + err.message);
+    }
+  };  
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this patient?')) return;
+    try {
+      await databaseService.deletePatient(id);
+      fetchPatients();
+    } catch (err) {
+      setError('Error deleting patient: ' + err.message);
+    }
   };
 
   return (
     <div className="patient-list-container">
       <h2>Patient List</h2>
-      
+
       {loading ? (
         <div className="loading">Loading...</div>
       ) : error ? (
@@ -104,11 +110,12 @@ const PatientList = () => {
                   <th>ID</th>
                   <th>First Name</th>
                   <th>Last Name</th>
-                  <th>Date of Birth</th>
+                  <th>DOB</th>
                   <th>Gender</th>
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Address</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,6 +129,12 @@ const PatientList = () => {
                     <td>{patient.phone}</td>
                     <td>{patient.email}</td>
                     <td>{patient.address}</td>
+                    <td>
+                      <div className='actionButtons'>
+                      <button className="edit-btn" onClick={() => handleEdit(patient)}>Edit</button>
+                      <button className="delete-btn" onClick={() => handleDelete(patient.id)}>Delete</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -130,35 +143,25 @@ const PatientList = () => {
 
           {totalPages > 1 && (
             <div className="pagination">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-              
+              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={currentPage === page ? 'active' : ''}
-                >
-                  {page}
-                </button>
+                <button key={page} onClick={() => handlePageChange(page)} className={currentPage === page ? 'active' : ''}>{page}</button>
               ))}
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
+              <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
             </div>
           )}
         </>
+      )}
+
+      {isModalOpen && editingPatient && (
+        <EditPatientModal
+          patient={editingPatient}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+        />
       )}
     </div>
   );
 };
 
-export default PatientList; 
+export default PatientList;

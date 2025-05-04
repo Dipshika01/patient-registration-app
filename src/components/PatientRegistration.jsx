@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import databaseService from '../services/database';
 import './PatientRegistration.css';
 
-// Create a custom event for patient registration
+// event for patient registration
 const patientRegisteredEvent = new Event('patientRegistered');
 
 export default function PatientRegistration() {
@@ -21,7 +21,6 @@ export default function PatientRegistration() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Initialize the database
     const setupDatabase = async () => {
       try {
         await databaseService.initialize();
@@ -54,10 +53,9 @@ export default function PatientRegistration() {
       channel.postMessage('patient_registered');
       alert('Patient registered successfully!');
       
-      // Dispatch the event to notify other components
       window.dispatchEvent(patientRegisteredEvent);
       
-      // Reset form after successful registration
+     
       setFormData({
         firstName: '',
         lastName: '',

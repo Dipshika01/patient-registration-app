@@ -54,7 +54,7 @@ select {
 }
 
 button {
-  background-color: #204655;
+  background-color: #206e8d;
   transition: background-color 0.3s;
 }
 button:hover:not(:disabled) {
@@ -76,15 +76,15 @@ button:disabled {
 } 
 
   .registration-card {
-    background: rgb(255 255 255 / 15%);
-    backdrop-filter: blur(12px); /* glassmorphism blur */
-    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    background: rgb(2 16 30 / 15%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    box-shadow: 1 8px 32px rgba(0, 0, 0, 0.25);
     width: 100%;
     max-width: 600px;
-    color: #fff; 
+    color: #7c6060;
     margin-bottom: 22%;
   }
   
@@ -114,22 +114,28 @@ button:disabled {
 .registration-card .form-group select,
 .registration-card .form-group textarea {
   width: 100%;
-  background-color: #a4b1b9;
+  background-color: #d3dde3;
   padding: 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
   box-sizing: border-box;
-  resize: none; /* prevent textarea from being resized manually */
+  resize: none; 
+  color: grey;
 }
 
-/* Make all input/select fields consistent in height */
 .registration-card .form-group input,
 .registration-card .form-group select {
   height: 45px;
 }
 
-/* Address field styling (as textarea) */
 .registration-card .form-group textarea {
-  height: 100px; /* Adjust the height as needed */
+  height: 100px; 
+}
+.actionButtons{
+  display: flex;
+  gap: 16px;
+}
+h2{
+  color: #206e8d;
 }

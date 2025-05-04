@@ -143,7 +143,6 @@ tr:hover {
   background-color: #4CAF50;
   color: white;
 }
-/* General Layout */
 .app-wrapper {
   display: flex;
   flex-direction: column;
@@ -154,33 +153,27 @@ tr:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #8dbfd3;
+  background: #236783;
   color: white;
   padding: 10px 20px;
   height: 5vh;
 }
-
-
 
 .app-container {
   display: flex;
   flex-grow: 1;
 }
 
-
-/* Main content */
 .main-content {
   flex-grow: 1;
   padding: 20px;
   background-color: #ade1f6;
 }
 
-/* Hide nav-toggle by default */
 .nav-toggle {
   display: none;
 }
 
-/* Show nav-toggle only on mobile */
 @media (max-width: 768px) {
   .nav-toggle {
     display: block;
@@ -193,7 +186,7 @@ tr:hover {
     top: 60px;
     right: 0;
     width: 100%;
-    background-color: #1976d2;
+    background-color: #236783;
     z-index: 1000;
   }
 
@@ -209,18 +202,20 @@ tr:hover {
   }
 }
 
-/* On desktop, keep nav-links horizontal */
 @media (min-width: 769px) {
   .nav-links {
     display: flex !important;
     position: static;
     background: none;
-    background-color: #8dbfd3;
   }
 
   .nav-links button {
     border: none;
-        background-color: #8dbfd3;
+        background-color: #236783;
         margin-top: 8%;
   }
+}
+#searchPatient{
+  margin-left: -305%;
+  margin-top: 8%;
 }
