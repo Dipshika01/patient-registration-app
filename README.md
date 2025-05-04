@@ -66,9 +66,8 @@ PGlite is a lightweight PostgreSQL-compatible database that runs entirely in the
 - `src/index.css`: Global CSS styling
 
 ## Future Improvements
-- Add patient search functionality
 - Add data export capabilities
 - Implement data backup functionality
 - Add user authentication
 - Role-based authentication.
-- 
+- Light-dark mode toggle
