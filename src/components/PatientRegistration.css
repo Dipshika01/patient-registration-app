@@ -1,7 +1,20 @@
+
+
 .registration-container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
+}
+.registration-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  backdrop-filter: blur(3px);
 }
 
 .registration-container h2 {
@@ -16,11 +29,13 @@
 
 input, select {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
+  padding: 8px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #6e6a6a;
   border-radius: 4px;
-  font-size: 16px;
-  transition: border-color 0.3s;
+  background-color: #a4b1b9;
+  color: grey;
 }
 
 input:focus, select:focus {
@@ -39,19 +54,11 @@ select {
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
+  background-color: #204655;
   transition: background-color 0.3s;
 }
-
 button:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #8dbfd3;
 }
 
 button:disabled {
@@ -67,3 +74,62 @@ button:disabled {
   margin-bottom: 20px;
   text-align: center;
 } 
+
+  .registration-card {
+    background: rgb(255 255 255 / 15%);
+    backdrop-filter: blur(12px); /* glassmorphism blur */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 600px;
+    color: #fff; 
+    margin-bottom: 22%;
+  }
+  
+.registration-card h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 28px;
+  color: #2c3e50;
+}
+.form-subtext {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #161010;
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
+}
+.registration-card .form-group input,
+.registration-card .form-group select,
+.registration-card .form-group textarea {
+  width: 100%;
+  background-color: #a4b1b9;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  resize: none; /* prevent textarea from being resized manually */
+}
+
+/* Make all input/select fields consistent in height */
+.registration-card .form-group input,
+.registration-card .form-group select {
+  height: 45px;
+}
+
+/* Address field styling (as textarea) */
+.registration-card .form-group textarea {
+  height: 100px; /* Adjust the height as needed */
+}

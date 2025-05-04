@@ -16,7 +16,7 @@ const PatientList = () => {
       console.log('Fetching patients...');
       const allPatients = await databaseService.getPatients();
       console.log('Fetched patients:', allPatients);
-      
+
       if (Array.isArray(allPatients)) {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -56,7 +56,15 @@ const PatientList = () => {
     };
 
     setupDatabase();
+    const channel = new BroadcastChannel('patient_updates');
 
+    channel.onmessage = (event) => {
+      if (event.data === 'patient_registered') {
+        console.log('📣 Patient update received from another tab!');
+        fetchPatients(); // re-fetch patient list
+      }
+    };
+    
     const handlePatientRegistered = () => {
       console.log('Patient registered event received, refreshing list...');
       if (mounted) {
@@ -69,6 +77,7 @@ const PatientList = () => {
     return () => {
       mounted = false;
       window.removeEventListener('patientRegistered', handlePatientRegistered);
+      channel.close();
     };
   }, [currentPage]);
 

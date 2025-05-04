@@ -52,7 +52,7 @@ input, select, textarea {
 }
 
 button {
-  background: #1976d2;
+  background: #204655;
   color: #fff;
   border: none;
   padding: 10px 24px;
@@ -61,7 +61,7 @@ button {
 }
 
 button:hover {
-  background: #1565c0;
+  background: #8dbfd3;
 }
 
 nav {
@@ -142,4 +142,85 @@ tr:hover {
 .navigation button.active {
   background-color: #4CAF50;
   color: white;
+}
+/* General Layout */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #8dbfd3;
+  color: white;
+  padding: 10px 20px;
+  height: 5vh;
+}
+
+
+
+.app-container {
+  display: flex;
+  flex-grow: 1;
+}
+
+
+/* Main content */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ade1f6;
+}
+
+/* Hide nav-toggle by default */
+.nav-toggle {
+  display: none;
+}
+
+/* Show nav-toggle only on mobile */
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 100%;
+    background-color: #1976d2;
+    z-index: 1000;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links button {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* On desktop, keep nav-links horizontal */
+@media (min-width: 769px) {
+  .nav-links {
+    display: flex !important;
+    position: static;
+    background: none;
+    background-color: #8dbfd3;
+  }
+
+  .nav-links button {
+    border: none;
+        background-color: #8dbfd3;
+        margin-top: 8%;
+  }
 }
