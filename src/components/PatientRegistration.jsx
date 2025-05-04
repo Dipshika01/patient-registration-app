@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { PGlite } from '@electric-sql/pglite';
+import { useState, useEffect } from 'react';
+import databaseService from '../services/database';
+import './PatientRegistration.css';
+
+// Create a custom event for patient registration
+const patientRegisteredEvent = new Event('patientRegistered');
 
 export default function PatientRegistration() {
   const [formData, setFormData] = useState({
@@ -12,7 +16,22 @@ export default function PatientRegistration() {
     email: '',
   });
 
-  const db = new PGlite();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Initialize the database
+    const setupDatabase = async () => {
+      try {
+        await databaseService.initialize();
+      } catch (err) {
+        console.error('Error initializing database:', err);
+        setError('Error initializing database: ' + err.message);
+      }
+    };
+
+    setupDatabase();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,36 +43,18 @@ export default function PatientRegistration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      await db.query(`
-        CREATE TABLE IF NOT EXISTS patients (
-          id SERIAL PRIMARY KEY,
-          first_name TEXT NOT NULL,
-          last_name TEXT NOT NULL,
-          date_of_birth DATE NOT NULL,
-          gender TEXT NOT NULL,
-          address TEXT,
-          phone TEXT,
-          email TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-
-      await db.query(
-        `INSERT INTO patients (first_name, last_name, date_of_birth, gender, address, phone, email)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          formData.firstName,
-          formData.lastName,
-          formData.dateOfBirth,
-          formData.gender,
-          formData.address,
-          formData.phone,
-          formData.email,
-        ]
-      );
-
+      const patients = await databaseService.registerPatient(formData);
+      console.log('Registered patient and got updated list:', patients);
+      
       alert('Patient registered successfully!');
+      
+      // Dispatch the event to notify other components
+      window.dispatchEvent(patientRegisteredEvent);
+      
       // Reset form after successful registration
       setFormData({
         firstName: '',
@@ -64,68 +65,92 @@ export default function PatientRegistration() {
         phone: '',
         email: '',
       });
-    } catch (error) {
-      console.error('Error registering patient:', error);
-      alert('Error registering patient. Please try again.');
+    } catch (err) {
+      console.error('Error registering patient:', err);
+      setError('Error registering patient: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="registration-container">
       <h2>Patient Registration</h2>
-      <input
-        name="firstName"
-        placeholder="First Name"
-        value={formData.firstName}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="lastName"
-        placeholder="Last Name"
-        value={formData.lastName}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="dateOfBirth"
-        type="date"
-        placeholder="Date of Birth"
-        value={formData.dateOfBirth}
-        onChange={handleChange}
-        required
-      />
-      <select
-        name="gender"
-        value={formData.gender}
-        onChange={handleChange}
-        required
-      >
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-      <textarea
-        name="address"
-        placeholder="Address"
-        value={formData.address}
-        onChange={handleChange}
-      />
-      <input
-        name="phone"
-        placeholder="Phone"
-        value={formData.phone}
-        onChange={handleChange}
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-      />
-      <button type="submit">Register Patient</button>
-    </form>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <input
+            name="firstName"
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            name="lastName"
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            name="dateOfBirth"
+            type="date"
+            placeholder="Date of Birth"
+            value={formData.dateOfBirth}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <input
+            name="address"
+            placeholder="Address"
+            value={formData.address}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <input
+            name="phone"
+            type="tel"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Registering...' : 'Register Patient'}
+        </button>
+      </form>
+    </div>
   );
 } 
